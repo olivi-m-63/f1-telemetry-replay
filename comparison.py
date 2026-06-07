@@ -7,7 +7,7 @@ fastf1.Cache.enable_cache(r'c:\\Users\\olivi\\python\\fastf1.cache')
 YEAR = 2026
 SESSION_NAME = 'Australian Grand Prix'
 SESSION_TYPE = 'R'
-METRIC = 'Brake'     #set the metric to compare, e.g. 'Speed', 'Throttle', 'Brake', etc.
+METRIC = 'Speed'     #set the metric to compare, e.g. 'Speed', 'Throttle', 'Brake', etc.
 lap_number = 11     #set the lap number to analyze for the session
 drivers_to_compare = ['RUS', 'VER']     #set the drivers to compare by their three-letter codes, e.g. 'HAM' for Lewis Hamilton, 'VER' for Max Verstappen, etc.
 

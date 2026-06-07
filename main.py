@@ -4,7 +4,7 @@ import plotly.graph_objects as go
 import pandas as pd
 import numpy as np
 
-fastf1.Cache.enable_cache(r'c:\Users\olivi\python\fastf1.cache')
+fastf1.Cache.enable_cache(r'c:\\Users\\olivi\\python\\fastf1.cache')
 #change these to set the year, session name, and session type
 YEAR = 2026
 SESSION_NAME = 'Australian Grand Prix'
