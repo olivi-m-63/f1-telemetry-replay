@@ -48,62 +48,37 @@ reference_time = np.interp(
 )     #interpolate the time values for the reference driver at the new distance points
 
 delta_time = compared_time - reference_time     #calculate the delta time between the two drivers at each distance point
-fig = go.Figure()
-fig.add_trace(go.Scatter(x=common_distance, y=delta_time, mode='lines', line=dict(width=2, color=fastf1.plotting.get_driver_color(driver_compared, session)), name=f"{driver_compared} vs {reference_driver} Delta Time"))     #add a trace for the delta time comparison between the two drivers
+
 
 circuit_info = session.get_circuit_info()
-
+corner_deltas = []
+segment_results = []
 for _, corner in circuit_info.corners.iterrows():       # type: ignore
-
-    fig.add_vline(
-        x=corner['Distance'],
-        line_width=1,
-        line_dash='dot'
+    corner_idx = np.argmin(
+        np.abs(common_distance - corner['Distance'])
     )
+    corner_deltas.append(delta_time[corner_idx])
+turn1_gain = corner_deltas[0] - 0
+segment_results.append((f"Start → T1", turn1_gain))
 
-    fig.add_annotation(
-        x=corner['Distance'],
-        y=1,
-        yref='paper',
-        text=f"T{corner['Number']}",
-        showarrow=False,
-        yshift=10
-    )
+for i in range(1, len(corner_deltas)):
+    segment_results.append((f"T{i} → T{i+1}", corner_deltas[i] - corner_deltas[i-1]))
 
-fig.update_layout(
-    title=f"{driver_compared} vs {reference_driver} Delta Time Comparison of Lap {lap_number} - {SESSION_NAME} {YEAR}",
-    legend=dict(x=1.1, y=1.0),
-    margin=dict(l=.3,r=300, t=50, b=0),
-    template='ggplot2'
+finish_delta = delta_time[-1]
+segment_results.append(
+    (f"T{len(corner_deltas)} → Finish",finish_delta - corner_deltas[-1]))
 
-)
+largest_losses = sorted(segment_results, key=lambda x: x[1], reverse=True)
+largest_gains = sorted(segment_results, key=lambda x: x[1], reverse=False)
 
+print("\nLargest gains:")
+for segment, gain in largest_gains[:3]:
+    print(f"{segment}: {gain:+.3f}s")
 
-fig.update_yaxes(
-    title_text="Delta Time (s)",
-    nticks=10,
-    showgrid=False
-)
-fig.update_xaxes(
-    title_text="Distance (m)",
-    showgrid = True
-)
+print("\nLargest losses:")
+for segment, gain in largest_losses[:3]:
+    print(f"{segment}: {gain:+.3f}s")
+
+    
 
 
-def format_time(timedelta):
-    if pd.isna(timedelta):
-        return "N/A"
-    minutes=timedelta.seconds // 60
-    seconds = timedelta.seconds % 60
-    milliseconds =int(timedelta.microseconds) // 1000
-    if minutes > 0:
-        return f"{minutes}:{seconds}.{milliseconds:03d}"
-    else:
-        return f"{seconds}.{milliseconds:03d}"
-
-
-fig.add_annotation(x=1.27, y=.8,xref='paper', yref = 'paper', text = f"{driver_compared} LAP TIME: {format_time(driver_compared_lap['LapTime'])}",showarrow=False, font = dict(color=fastf1.plotting.get_driver_color(driver_compared, session),size=14))
-fig.add_annotation(x=1.27, y=(.8-.046),xref='paper', yref = 'paper', text = f"{reference_driver} LAP TIME: {format_time(reference_driver_lap['LapTime'])}",showarrow=False, font = dict(color=fastf1.plotting.get_driver_color(reference_driver, session),size=14))
-fig.add_annotation(x=1.27, y=(.8-.092),xref='paper', yref = 'paper', text = f"Δ = {driver_compared} - {reference_driver}<br>+ = {driver_compared} behind<br>− = {driver_compared} ahead",showarrow=False, font = dict(color='black',size=14))
-
-fig.show()

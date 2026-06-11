@@ -2,7 +2,7 @@ import fastf1
 import fastf1.plotting
 import plotly.graph_objects as go
 import pandas as pd
-fastf1.Cache.enable_cache(r'c:\\Users\\olivi\\python\\fastf1.cache')
+fastf1.Cache.enable_cache(r'c:\\Users\\olivi\\python\\fastf1.cache') #replace with your desired cache directory
 #change these to set the year, session name, and session type
 YEAR = 2026
 SESSION_NAME = 'Australian Grand Prix'
@@ -49,7 +49,7 @@ fig = go.Figure(data=traces)
 
 circuit_info = session.get_circuit_info()
 
-for _, corner in circuit_info.corners.iterrows():
+for _, corner in circuit_info.corners.iterrows():       # type: ignore
 
     fig.add_vline(
         x=corner['Distance'],
